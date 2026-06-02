@@ -17,14 +17,14 @@ const firebaseConfig = {
 
 const firestoreDatabaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || '';
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if we have a config (prevents blank screen crash if secrets are missing)
+const app = firebaseConfig.apiKey ? initializeApp(firebaseConfig) : null as any;
 
 // Initialize Auth
-export const auth = getAuth(app);
+export const auth = app ? getAuth(app) : null as any;
 
 // Initialize Firestore
-export const db = getFirestore(app, firestoreDatabaseId);
+export const db = app ? getFirestore(app, firestoreDatabaseId) : null as any;
 
 /**
  * Handle Firestore exceptions to print standard diagnostic JSON error payloads as strictly required.
@@ -33,12 +33,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid || null,
-      email: auth.currentUser?.email || null,
-      emailVerified: auth.currentUser?.emailVerified || null,
-      isAnonymous: auth.currentUser?.isAnonymous || null,
-      tenantId: auth.currentUser?.tenantId || null,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+      userId: auth?.currentUser?.uid || null,
+      email: auth?.currentUser?.email || null,
+      emailVerified: auth?.currentUser?.emailVerified || null,
+      isAnonymous: auth?.currentUser?.isAnonymous || null,
+      tenantId: auth?.currentUser?.tenantId || null,
+      providerInfo: auth?.currentUser?.providerData?.map((provider: any) => ({
         providerId: provider.providerId,
         email: provider.email || null,
       })) || [],

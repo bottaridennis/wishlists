@@ -45,6 +45,11 @@ export default function App() {
 
   // 1. Listen to Authentication State
   useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setAuthLoading(false);
@@ -68,7 +73,7 @@ export default function App() {
 
   // 2. Real-time synchronisation of wish list items
   useEffect(() => {
-    if (!isAuthorizedCouple) {
+    if (!isAuthorizedCouple || !db) {
       setWishlistItems([]);
       return;
     }
@@ -274,7 +279,20 @@ export default function App() {
   // Check if current tab list belongs to current signed-in user
   const isMyList = activeTab === (isPipino ? 'pipino' : isPipina ? 'pipina' : '');
 
-  // Render State 1: Authentication loading
+  // Render State 1: Initialization Error (Missing Firebase Config)
+  if (!auth || !db) {
+    return (
+      <div className="min-h-screen bg-rose-50 flex flex-col items-center justify-center p-6 text-center" id="config-error">
+        <AlertTriangle className="w-12 h-12 text-rose-500 mb-4" />
+        <h1 className="text-lg font-bold text-slate-900 uppercase tracking-wider mb-2">Configurazione Mancante</h1>
+        <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+          Le credenziali di Firebase non sono state trovate. Se stai usando GitHub Pages, assicurati di aver inserito i Secret (es. VITE_FIREBASE_API_KEY) nelle impostazioni della repository Github (Settings &gt; Secrets and variables &gt; Actions). Applica i Secret e ripeti il Deploy.
+        </p>
+      </div>
+    );
+  }
+
+  // Render State 2: Authentication loading
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center" id="auth-loading">
