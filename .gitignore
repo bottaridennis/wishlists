@@ -1,0 +1,45 @@
+# Node.js dependencies
+node_modules/
+
+# Production build outputs
+dist/
+dist-ssr/
+build/
+out/
+
+# IDE / Editor support files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Logs and coverage
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+coverage/
+
+# Firebase Cache & Deployment settings
+.firebase/
+firebase-debug.log
+.firebaserc
+firebase-applet-config.json
+
+# Personal Local Environment Secrets (Very Important!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*
+!.env.example
+security_spec.md
+firestore.rules

@@ -1,0 +1,6 @@
+{
+  "name": "Pipino & Pipina Wishlist",
+  "description": "Sito mobile-first privato per la condivisione e prenotazione dei regali tra Pipino (Dennis) e Pipina (Alice) in tempo reale.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

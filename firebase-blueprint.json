@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "WishItem": {
+      "title": "WishItem",
+      "description": "An item in the couple's wishlist",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique document ID for this wish list item"
+        },
+        "name": {
+          "type": "string",
+          "description": "The mandatory name of the wishlist item"
+        },
+        "description": {
+          "type": "string",
+          "description": "The optional description of the item"
+        },
+        "price": {
+          "type": "number",
+          "description": "The optional price of the item"
+        },
+        "link": {
+          "type": "string",
+          "description": "An optional link to the product"
+        },
+        "photo": {
+          "type": "string",
+          "description": "An optional photo represented by an image URL or compressed Base64 data string"
+        },
+        "listId": {
+          "type": "string",
+          "enum": ["pipino", "pipina"],
+          "description": "The wishlist it belongs to: pipino (Dennis) or pipina (Alice)"
+        },
+        "listOwner": {
+          "type": "string",
+          "enum": ["dennisbottari@gmail.com", "amele5022@gmail.com"],
+          "description": "The email of the list owner"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The email of the user who created this item"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "isReserved": {
+          "type": "boolean",
+          "description": "Whether the other person has reserved/purchased this gift"
+        },
+        "reservedBy": {
+          "type": "string",
+          "description": "Unique email of the user who reserved this item, or null if unreserved"
+        },
+        "reservedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the item was reserved, or null"
+        }
+      },
+      "required": ["name", "listId", "listOwner", "createdBy", "createdAt", "updatedAt", "isReserved"]
+    }
+  },
+  "firestore": {
+    "wishitems/{itemId}": {
+      "schema": "WishItem",
+      "description": "Collection of wish list items for Pipino and Pipina"
+    }
+  }
+}
