@@ -41,5 +41,6 @@ firebase-applet-config.json
 .env.production.local
 .env*
 !.env.example
-security_spec.md
+firebase-blueprint.json
 firestore.rules
+security_spec.md

@@ -50,6 +50,9 @@ jobs:
           VITE_FIREBASE_DATABASE_ID: ${{ secrets.VITE_FIREBASE_DATABASE_ID }}
           VITE_BASE_PATH: '/wishlist/'
 
+      - name: Disable Jekyll
+        run: touch ./dist/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
