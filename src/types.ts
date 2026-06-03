@@ -39,6 +39,9 @@ export interface WishItem {
   isReserved: boolean;
   reservedBy: string | null;
   reservedAt: any; // Firestore Timestamp or null
+  isPurchased?: boolean;
+  purchasedBy?: string | null;
+  purchasedAt?: any;
 }
 
 export type UserProfile = {
