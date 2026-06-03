@@ -88,7 +88,7 @@ export default function WishlistItemCard({
 
           {/* Item Description */}
           {item.description ? (
-            <p className="text-xs text-slate-500 leading-relaxed font-sans line-clamp-2 italic">
+            <p className="text-xs text-slate-500 leading-relaxed font-sans italic whitespace-pre-line break-words">
               {item.description}
             </p>
           ) : (
