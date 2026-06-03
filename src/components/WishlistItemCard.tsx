@@ -11,6 +11,7 @@ interface WishlistItemCardProps {
   onEdit: (item: WishItem) => void;
   onDelete: (item: WishItem) => void | Promise<void>;
   onToggleReserve: (item: WishItem) => Promise<void>;
+  onTogglePurchase: (item: WishItem) => Promise<void>;
   isOwnerOfList: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function WishlistItemCard({
   onEdit,
   onDelete,
   onToggleReserve,
+  onTogglePurchase,
   isOwnerOfList,
 }: WishlistItemCardProps) {
   const formattedPrice = formatPrice(item.price);
@@ -64,17 +66,31 @@ export default function WishlistItemCard({
         {/* Surprise/Reservation badges only observable by corresponding user roles */}
         {isOwnerOfList ? (
           // Sweet surprise seal for the owner
-          <div className="absolute top-3 right-3 px-2.5 py-1 bg-slate-900 text-white rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-xs flex items-center gap-1 shadow-xs">
-            <Lock size={10} /> Sorpresa 💝
+          <div className="absolute top-3 right-3 flex gap-2">
+            {item.isPurchased && item.purchasedBy === item.listOwner && (
+              <div className="px-2.5 py-1 bg-emerald-500 text-white rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-xs flex items-center gap-1 shadow-xs">
+                <Check size={10} /> Preso da me
+              </div>
+            )}
+            <div className="px-2.5 py-1 bg-slate-900 text-white rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-xs flex items-center gap-1 shadow-xs">
+              <Lock size={10} /> Sorpresa 💝
+            </div>
           </div>
         ) : (
           // Reservation indicator shown ONLY to the visitor
-          item.isReserved && (
-            <div className="absolute top-3 right-3 px-2.5 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-xs">
-              <Check size={9} />
-              {item.reservedBy === currentUserEmail ? 'Prenotato da te' : 'Già Prenotato'}
-            </div>
-          )
+          <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+            {item.isPurchased && item.purchasedBy === currentUserEmail && (
+              <div className="px-2.5 py-1 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-xs">
+                <Check size={9} /> Già Acquistato
+              </div>
+            )}
+            {item.isReserved && !item.isPurchased && (
+              <div className="px-2.5 py-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-xs">
+                <Check size={9} />
+                {item.reservedBy === currentUserEmail ? 'Prenotato da te' : 'Già Prenotato'}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -97,45 +113,74 @@ export default function WishlistItemCard({
         </div>
 
         {/* Buttons and Actions footer */}
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
+        <div className="mt-4 pt-3 border-t border-slate-100 flex flex-col gap-2">
           {isOwnerOfList ? (
-            // Edit & Delete row for the Owner
-            <div className="flex items-center gap-1.5 w-full">
+            // Actions for Owner
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 w-full">
+                <button
+                  type="button"
+                  id={`edit-item-${item.id}`}
+                  onClick={() => onEdit(item)}
+                  className="flex-1 py-1.5 px-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer"
+                >
+                  <Edit2 size={11} /> Modifica
+                </button>
+                <button
+                  type="button"
+                  id={`delete-item-${item.id}`}
+                  onClick={() => onDelete(item)}
+                  className="py-1.5 px-3 rounded-xl border border-rose-100 bg-rose-50/40 hover:bg-rose-50 text-rose-500 hover:text-rose-700 text-xs font-bold flex items-center justify-center transition-all cursor-pointer"
+                  title="Elimina regalo"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
               <button
                 type="button"
-                id={`edit-item-${item.id}`}
-                onClick={() => onEdit(item)}
-                className="flex-1 py-1.5 px-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer"
+                onClick={() => onTogglePurchase(item)}
+                className={`py-1.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center cursor-pointer w-full ${
+                  item.isPurchased && item.purchasedBy === item.listOwner
+                    ? 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 shrink-0'
+                    : 'border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 shrink-0'
+                }`}
               >
-                <Edit2 size={11} /> Modifica
-              </button>
-              <button
-                type="button"
-                id={`delete-item-${item.id}`}
-                onClick={() => onDelete(item)}
-                className="py-1.5 px-3 rounded-xl border border-rose-100 bg-rose-50/40 hover:bg-rose-50 text-rose-500 hover:text-rose-700 text-xs font-bold flex items-center justify-center transition-all cursor-pointer"
-                title="Elimina regalo"
-              >
-                <Trash2 size={12} />
+                {item.isPurchased && item.purchasedBy === item.listOwner ? (
+                  <>❌ Annulla acquisto personale</>
+                ) : (
+                  <>🛍️ L'ho comprato da me</>
+                )}
               </button>
             </div>
           ) : (
-            // Reservation controls for the Visitor
+            // Actions for Visitor
             <div className="flex flex-col gap-1.5 w-full">
               {item.isReserved ? (
-                item.reservedBy === currentUserEmail ? (
-                  // Reserved by the visitor. Click cancels.
-                  <button
-                    type="button"
-                    onClick={() => onToggleReserve(item)}
-                    id={`unreserve-item-${item.id}`}
-                    className="w-full py-1.5 px-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200/60 hover:text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                  >
-                    <Check size={11} className="text-emerald-500" />
-                    Annulla Prenotazione
-                  </button>
+                item.reservedBy === currentUserEmail || item.purchasedBy === currentUserEmail ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => onTogglePurchase(item)}
+                      className={`w-full py-1.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        item.isPurchased
+                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-100'
+                      }`}
+                    >
+                      {item.isPurchased ? <><Check size={11} /> Acquistato!</> : <>🛍️ Segna come Acquistato</>}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onToggleReserve(item)}
+                      id={`unreserve-item-${item.id}`}
+                      className="w-full py-1.5 px-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200/60 hover:text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer mt-1"
+                    >
+                      <Check size={11} className="text-emerald-500" />
+                      Annulla Prenotazione
+                    </button>
+                  </>
                 ) : (
-                  // Reserved by someone else (not visible, but rules guard it; let's show disabled)
+                  // Reserved or bought by someone else
                   <button
                     type="button"
                     disabled
@@ -164,11 +209,11 @@ export default function WishlistItemCard({
               href={cleanLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-1.5 px-3 rounded-xl border border-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-50 flex items-center justify-center transition-all bg-white cursor-pointer"
+              className="mt-1 py-1.5 px-3 rounded-xl border border-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-50 flex items-center justify-center gap-1.5 transition-all bg-white cursor-pointer text-xs font-bold"
               title="Vedi Prodotto"
               id={`link-item-${item.id}`}
             >
-              <ExternalLink size={12} />
+              <ExternalLink size={12} /> Apri Link Prodotto
             </a>
           )}
         </div>
