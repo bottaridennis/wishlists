@@ -308,7 +308,7 @@ export default function App() {
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-6" id="unauth-view">
-        <div className="flex flex-col lg:flex-row items-center gap-12 max-w-4xl w-full justify-center">
+        <div className="flex flex-col items-center gap-12 max-w-4xl w-full justify-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -348,23 +348,6 @@ export default function App() {
               <LogIn size={14} /> Accedi con Google
             </button>
           </motion.div>
-
-          <div className="hidden lg:block max-w-xs space-y-5">
-            <div className="space-y-1">
-              <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none uppercase">WishList Duo</h1>
-              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider block mt-1">Dennis &amp; Alice. In tempo reale.</p>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></div>
-                <p className="text-xs text-slate-600 leading-relaxed"><span className="font-bold text-slate-800">Accesso Verificato:</span> Solo gli account dennisbottari@ e amele5022@ possono accedere alle liste private.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></div>
-                <p className="text-xs text-slate-600 leading-relaxed"><span className="font-bold text-slate-800">Sincronizzazione Live:</span> Le modifiche appaiono istantaneamente al proprio partner in tempo reale.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -412,11 +395,11 @@ export default function App() {
       <Header user={currentUser} onLogout={handleLogout} />
 
       {/* Grid container arranging view left / side context panel right on Desktop */}
-      <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="flex-1 w-full max-w-3xl mx-auto px-4 py-6 sm:py-8">
+        <div className="flex flex-col gap-8 items-start w-full">
           
           {/* Main List Workspace */}
-          <main className="lg:col-span-8 flex flex-col space-y-6">
+          <main className="w-full flex flex-col space-y-6">
             
             {/* Sub-header greetings card */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 bg-white border border-slate-100 rounded-[24px] shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
@@ -553,37 +536,6 @@ export default function App() {
               </motion.div>
             )}
           </main>
-
-          {/* Right Aesthetic Info Dashboard Panel (Matches the provided mockup layout meticulously) */}
-          <aside className="lg:col-span-4 space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase">WishList Duo</h1>
-              <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider block mt-1">Dennis &amp; Alice. In tempo reale.</p>
-            </div>
-            
-            <div className="space-y-4 border-t border-slate-100 pt-5">
-              <div className="flex items-start gap-3">
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></div>
-                <p className="text-xs text-slate-600 leading-relaxed"><span className="font-bold text-slate-800">Accesso Verificato:</span> Solo gli account dennisbottari@ e amele5022@ possono accedere alle liste private.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></div>
-                <p className="text-xs text-slate-600 leading-relaxed"><span className="font-bold text-slate-800">Sincronizzazione Live:</span> Le modifiche appaiono istantaneamente ad Alice (Pipina) e Dennis (Pipino).</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.01)]">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Status Sistema</p>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <p className="text-xs font-bold text-slate-700">Connessione sicura attiva</p>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                L'applicazione è collegata a Firestore Cloud Database.
-              </p>
-            </div>
-          </aside>
-
         </div>
       </div>
 
