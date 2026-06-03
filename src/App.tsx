@@ -16,11 +16,12 @@ import {
   deleteDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { Heart, Plus, Loader2, LogIn, Lock, HelpCircle, UserCheck, AlertTriangle } from 'lucide-react';
-
-import { auth, db, handleFirestoreError } from './firebase.ts';
-import { WishItem, OperationType } from './types.ts';
-import Header from './components/Header.tsx';
+  import { Heart, Plus, Loader2, LogIn, Lock, HelpCircle, UserCheck, AlertTriangle, ShoppingCart } from 'lucide-react';
+  
+  import { auth, db, handleFirestoreError } from './firebase.ts';
+  import { WishItem, OperationType } from './types.ts';
+  import { formatPrice } from './utils.ts';
+  import Header from './components/Header.tsx';
 import WishlistItemCard from './components/WishlistItemCard.tsx';
 import WishlistFormModal from './components/WishlistFormModal.tsx';
 
@@ -108,14 +109,26 @@ export default function App() {
           } as WishItem);
         });
 
+        // Optionally hide items bought by the owner from the visitor
+        const visibleItems = itemsList.filter(item => {
+          if (!currentUser) return true;
+          // If the list owner purchased it for themselves, hide it from the other person
+          if (item.isPurchased && item.purchasedBy === item.listOwner) {
+            if (currentUser.email !== item.listOwner) {
+              return false;
+            }
+          }
+          return true;
+        });
+
         // Sort items by creation date descending (newest first)
-        itemsList.sort((a, b) => {
+        visibleItems.sort((a, b) => {
           const aTime = a.createdAt?.seconds || 0;
           const bTime = b.createdAt?.seconds || 0;
           return bTime - aTime;
         });
 
-        setWishlistItems(itemsList);
+        setWishlistItems(visibleItems);
         setWishlistLoading(false);
       },
       (error) => {
@@ -218,6 +231,9 @@ export default function App() {
           isReserved: false,
           reservedBy: null,
           reservedAt: null,
+          isPurchased: false,
+          purchasedBy: null,
+          purchasedAt: null,
         });
       } catch (error) {
         handleFirestoreError(error, OperationType.CREATE, docPath);
@@ -269,6 +285,34 @@ export default function App() {
     }
   };
 
+  // Toggle Purchase Status
+  const handleTogglePurchase = async (item: WishItem) => {
+    if (!currentUser?.email) return;
+
+    const docPath = `wishitems/${item.id}`;
+    const itemRef = doc(db, 'wishitems', item.id);
+
+    try {
+      if (item.isPurchased) {
+        await updateDoc(itemRef, {
+          isPurchased: false,
+          purchasedBy: null,
+          purchasedAt: null,
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        await updateDoc(itemRef, {
+          isPurchased: true,
+          purchasedBy: currentUser.email,
+          purchasedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, docPath);
+    }
+  };
+
   // Categorize elements by tab
   const activeItems = wishlistItems.filter((item) => item.listId === activeTab);
 
@@ -278,6 +322,23 @@ export default function App() {
 
   // Check if current tab list belongs to current signed-in user
   const isMyList = activeTab === (isPipino ? 'pipino' : isPipina ? 'pipina' : '');
+
+  // Cart calculations: Items reserved or purchased by the current user for the OTHER person
+  const myCartItems = wishlistItems.filter((i) => 
+    i.listOwner !== currentUser?.email && 
+    (i.reservedBy === currentUser?.email || i.purchasedBy === currentUser?.email)
+  );
+
+  const cartTotal = myCartItems.reduce((acc, item) => {
+    if (!item.price) return acc;
+    let p = 0;
+    if (typeof item.price === 'number') {
+      p = item.price;
+    } else if (typeof item.price === 'string') {
+      p = parseFloat(item.price.replace(',', '.').replace(/[^\d.-]/g, ''));
+    }
+    return acc + (isNaN(p) ? 0 : p);
+  }, 0);
 
   // Render State 1: Initialization Error (Missing Firebase Config)
   if (!auth || !db) {
@@ -475,6 +536,31 @@ export default function App() {
               </button>
             </div>
 
+            {/* Cart Overview (Visible if you reserved/bought anything from the partner's list) */}
+            {myCartItems.length > 0 && !isMyList && (
+               <motion.div
+                 initial={{ opacity: 0, y: 5 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="p-4 bg-indigo-50 border border-indigo-100 rounded-[20px] flex items-center justify-between shadow-xs mb-2"
+               >
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                     <ShoppingCart size={18} />
+                   </div>
+                   <div>
+                     <h3 className="text-sm font-bold text-indigo-900 tracking-tight">Il tuo Carrello</h3>
+                     <p className="text-xs text-indigo-600 font-medium">
+                       Hai {myCartItems.length} regalo/i in prenotazione per il partner
+                     </p>
+                   </div>
+                 </div>
+                 <div className="text-right">
+                   <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Spesa Totale</p>
+                   <p className="text-lg font-black text-indigo-700 leading-none">{formatPrice(cartTotal)}</p>
+                 </div>
+               </motion.div>
+            )}
+
             {/* List Contents Grid */}
             {wishlistLoading ? (
               <div className="py-20 flex flex-col items-center justify-center" id="list-loading">
@@ -497,6 +583,7 @@ export default function App() {
                       onEdit={openEditModal}
                       onDelete={handleDeleteItem}
                       onToggleReserve={handleToggleReserve}
+                      onTogglePurchase={handleTogglePurchase}
                       isOwnerOfList={isMyList}
                     />
                   ))}
